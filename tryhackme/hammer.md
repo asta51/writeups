@@ -116,7 +116,7 @@ var jwtToken = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1Ni...';
 
 Decoded at `jwt.io`, changed role to `"admin"`.
 
-Re-signed using `.key` found in `/hmr_logs/`.
+Re-signed using `.key` found in `/188ade1.key`.
 
 Replaced the `Authorization` header:
 
