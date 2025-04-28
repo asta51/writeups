@@ -7,12 +7,7 @@
 
 ## 🎯 Objectives
 
-- Get User & Root flag
-- Identify vulnerable services and paths
-- Exploit XSS for session hijacking
-- Gain remote shell access
-- Perform local enumeration and database extraction
-- Pivot SSH users and escalate to root
+To exploit the Robots machine and get User and Root flag.
 
 ---
 
@@ -24,7 +19,6 @@
 - `chisel` (port forwarding)
 - `ssh`
 - `GTFOBins`
-- `Burp Suite`
 
 ---
 
